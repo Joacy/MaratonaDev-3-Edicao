@@ -96,6 +96,7 @@ main,
 
 .form input {
   background: transparent;
+  color: #ffffffaa;
 }
 
 .form input::placeholder {
@@ -109,9 +110,17 @@ main,
 }
 
 main .donors {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
 }
+
+main .donors .donor {
+  padding: 15px 0px;
+  padding-top: 25px;
+  width: 25%;
+}
+
 
 .blood {
   color: #ff4f4f;
