@@ -5,33 +5,28 @@ server.use(express.static("public"));
 
 server.use(express.urlencoded({ extended: true }));
 
+const Pool = require('pg').Pool;
+const db = new Pool({
+    user: 'postgres',
+    password: 'postgree',
+    host: 'localhost',
+    port: 5432,
+    database: 'doe',
+});
+
 const nunjucks = require("nunjucks");
 nunjucks.configure("./", {
     express: server,
     noCache: true,
 });
 
-const donors = [
-    {
-        name: "Diego Fernandes",
-        blood: "AB+",
-    },
-    {
-        name: "Cleiton Souza",
-        blood: "B+",
-    },
-    {
-        name: "Robson Marques",
-        blood: "A+",
-    },
-    {
-        name: "Mayk Brito",
-        blood: "O+",
-    },
-];
-
 server.get("/", function (req, res) {
-    return res.render("index.html", { donors });
+    db.query("SELECT * FROM donors", function (err, result) {
+        if (err) return res.send("Erro no Banco de Dados");
+
+        const donors = result.rows;
+        return res.render("index.html", { donors });
+    });
 });
 
 server.post("/", function (req, res) {
@@ -39,12 +34,15 @@ server.post("/", function (req, res) {
     const email = req.body.email;
     const bloodType = req.body.bloodType;
 
-    donors.push({
-        name: name,
-        blood: bloodType,
-    });
+    const query = `INSERT INTO donors ("name", "email", "blood") VALUES ($1, $2, $3)`;
 
-    return res.redirect("/");
+    const values = [name, email, bloodType];
+
+    db.query(query, values, function (err) {
+        if (err) return res.send("Erro no Banco de Dados");
+
+        return res.redirect("/");
+    });
 });
 
 server.listen(3333);
